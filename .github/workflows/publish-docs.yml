@@ -28,9 +28,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          
-      - name: Install Node.js dependencies
-        run: npm install
         
       # Build Zensical documentation
       - name: Setup Python for Zensical
