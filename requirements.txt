@@ -1,0 +1,27 @@
+# Zensical - Modern static site generator by Material for MkDocs team
+zensical
+
+# Development utilities
+bump2version
+coverage
+flake8
+grip
+ipykernel
+livereload
+nbconvert>=7
+pip
+sphinx
+tox
+twine
+watchdog
+wheel
+
+# Core dependencies (bundled with Zensical, listed for reference)
+# jinja2>=3.0.2
+# markdown>=3.2
+# pygments>=2.12
+# pymdown-extensions>=9.4
+
+# Additional utilities
+requests>=2.26
+cairosvg
