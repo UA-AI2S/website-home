@@ -1,4 +1,4 @@
-# The Arizona Institute for AI and Society: Materials Home 
+# The Arizona Institute for Artificial Intelligence and Society (AI2S) 
 
 <img src="assets/Old-Main2.jpg" width=1000>
 
