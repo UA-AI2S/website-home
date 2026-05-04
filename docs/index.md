@@ -17,8 +17,17 @@ AI Info Sessions - is designed to help the University of Arizona and the local c
 * [AI Automation and Agents](https://github.com/UA-AI2S/AI-Automation-and-Agents/wiki)
 * [GenAI Best Practices Prompt Library](https://github.com/UA-AI2S/GenAI-BestPractices/wiki)
 
+A
 
 ***
+
+B
+---
+
+C
+<hr>
+
+D
 
 <img src="assets/CC-BY-NC-SA.png" width=150> 2026. <br> 
 
