@@ -7,3 +7,13 @@ The [Arizona Institute for AI and Society (AI2S)](https://responsibleai.arizona.
 ## Recordings
 
 # Learning Resources
+
+
+
+
+****
+
+
+<img src="https://github.com/UA-AI2S/AI-Info-Sessions/blob/main/images/cc-by-nc-sa_icon.png" width=100> 2026. <br> 
+[**Arizona Institute for Artificial Intelligence (AI2S)**](https://responsibleai.arizona.edu/ai2s). 
+[**Office of Responsible Artificial Intelligence**](https://responsibleai.arizona.edu/). The University of Arizona.
