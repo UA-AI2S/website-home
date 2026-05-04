@@ -1,6 +1,6 @@
 [project]
 # Site metadata
-site_name = "AI2S Materials"
+site_name = "AI2S Learning Resources"
 site_description = "Home for the University of Arizona AI2S teaching and workshop materials"
 site_author = "AI2S Staff"
 site_url = "ua-ai2s.github.io"
