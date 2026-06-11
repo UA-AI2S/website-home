@@ -22,7 +22,8 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 
 ***
 
-* [AI Automation Quizzes](agents.md)
+## Historic archive
+* [Presentations](presentations/list.md)
 
 ***
 
