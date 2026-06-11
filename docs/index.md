@@ -23,7 +23,7 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 ***
 
 ## Historic archive
-* [Presentations](presentations/list.md)
+* [Presentations](list.md)
 
 ***
 
