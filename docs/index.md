@@ -31,11 +31,11 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 ***
 
 
-<p><img src="assets/CC-BY-NC-SA.png" width=150> Creative Commons 2026.
+<p><img src="assets/CC-BY-NC-SA.png" width=150> Creative Commons 2026.<br>
 
 
-[**Arizona Institute for Artificial Intelligence (AI2S)**](https://responsibleai.arizona.edu/ai2s). 
-[**Office of Responsible Artificial Intelligence**](https://responsibleai.arizona.edu/). The University of Arizona.
+[Arizona Institute for Artificial Intelligence (AI2S)](https://responsibleai.arizona.edu/ai2s). 
+[Office of Responsible Artificial Intelligence](https://responsibleai.arizona.edu/). The University of Arizona.
 
 
 
