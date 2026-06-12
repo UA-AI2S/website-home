@@ -26,9 +26,10 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 * [Presentations](list.md)
 
 ***
+***
 
 
-<p><img src="assets/CC-BY-NC-SA.png" width=150> 2026. <br> 
+<p><img src="assets/CC-BY-NC-SA.png" width=150> Creative Commons 2026.<br> 
 
 <br>
 <p><img src="https://responsibleai.arizona.edu/sites/default/files/Responsible-Artificial-Intelligence_WEB_0.png" width=300>
