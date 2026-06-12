@@ -33,9 +33,8 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 
 <p><img src="assets/CC-BY-NC-SA.png" width=150> Creative Commons 2026.<br> 
 
-<br>
 <p><img src="https://responsibleai.arizona.edu/sites/default/files/Responsible-Artificial-Intelligence_WEB_0.png" width=300>
-<br>
-<br>
+
+
 [**Arizona Institute for Artificial Intelligence (AI2S).**](https://responsibleai.arizona.edu/ai2s)<br> 
-[**Office of Responsible Artificial Intelligence.**](https://responsibleai.arizona.edu/) The University of Arizona.
+[**Office of Responsible Artificial Intelligence.**](https://responsibleai.arizona.edu/). The University of Arizona.
