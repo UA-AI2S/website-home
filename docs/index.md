@@ -21,10 +21,10 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 * [GenAI Best Practices Prompt Library](https://github.com/UA-AI2S/GenAI-BestPractices/wiki)
 
 ***
-<!--
+
 ## Historic archive
 * [Presentations](list.md)
--->
+
 ***
 
 
