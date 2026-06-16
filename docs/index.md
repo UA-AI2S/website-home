@@ -31,7 +31,7 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 ***
 
 
-<p><img src="assets/CC-BY-NC-SA.png" width=150> Creative Commons 2026.<br>
+<p><img src="assets/CC-BY-NC-SA.png" width=100> Creative Commons 2026.<br>
 
 
 <p><a href="https://responsibleai.arizona.edu/ai2s"><b>Arizona Institute for Artificial Intelligence (AI2S).</b></a>
