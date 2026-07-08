@@ -28,6 +28,12 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 * [Presentations](list.md)
 
 ***
+
+## U of A Organizational Maps
+
+* [General Org Map](uaOrgMaps/ua_org_map.html)
+
+
 ***
 
 
