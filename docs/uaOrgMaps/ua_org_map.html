@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University of Arizona — Organizational Map</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0C234B;
+    font-family: 'Georgia', serif;
+    color: #f0ece4;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 24px 20px 10px;
+    background: #0C234B;
+    border-bottom: 3px solid #AB0520;
+  }
+
+  header h1 {
+    font-size: 1.7rem;
+    color: #fff;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  header p {
+    font-size: 0.82rem;
+    color: #a0b0c8;
+    margin-top: 5px;
+    font-style: italic;
+  }
+
+  /* Category filter bar */
+  #filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: #091c3a;
+  }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    font-size: 0.75rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .filter-btn.active { opacity: 1; border-color: #fff; }
+  .filter-btn:not(.active) { opacity: 0.45; }
+
+  /* Legend */
+  #legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 20px 14px;
+    background: #091c3a;
+    border-bottom: 1px solid #1e3560;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.73rem;
+    color: #c0cfe0;
+  }
+
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Canvas */
+  #chart-area {
+    width: 100%;
+    position: relative;
+  }
+
+  svg { display: block; width: 100%; }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    background: rgba(9, 28, 58, 0.97);
+    border: 1px solid #AB0520;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: #e8f0f8;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    max-width: 260px;
+    z-index: 999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  #tooltip .tt-title { font-size: 0.88rem; font-weight: bold; color: #fff; margin-bottom: 4px; }
+  #tooltip .tt-cat { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.7; margin-bottom: 4px; }
+  #tooltip .tt-desc { font-size: 0.75rem; color: #b0c4de; line-height: 1.4; }
+
+  circle { transition: opacity 0.25s; }
+  circle:hover { cursor: pointer; }
+
+  .bubble-label {
+    pointer-events: none;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    fill: rgba(255,255,255,0.92);
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  footer {
+    text-align: center;
+    padding: 14px;
+    font-size: 0.7rem;
+    color: #4a6a90;
+    background: #060f1e;
+    border-top: 1px solid #1e3560;
+  }
+
+  footer a { color: #5b85b5; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>University of Arizona — Institutional Organizational Map</h1>
+  <p>Bubble size reflects relative institutional scale &amp; scope &nbsp;·&nbsp; Click category filters to highlight · Hover for details</p>
+</header>
+
+<div id="filters"></div>
+<div id="legend"></div>
+<div id="chart-area"></div>
+
+<div id="tooltip">
+  <div class="tt-cat" id="tt-cat"></div>
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+</div>
+
+<footer>
+  Data sourced from <a href="https://www.arizona.edu" target="_blank">arizona.edu</a>,
+  <a href="https://catalog.arizona.edu" target="_blank">catalog.arizona.edu</a>,
+  <a href="https://president.arizona.edu" target="_blank">president.arizona.edu</a>,
+  <a href="https://directory.arizona.edu" target="_blank">directory.arizona.edu</a>.
+  Bubble size reflects estimated relative scope (enrollment share, departments, strategic weight).
+</footer>
+
+<div id="tooltip"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const CATEGORIES = [
+  { id: "governance",    label: "Governance & President's Office", color: "#AB0520" },
+  { id: "colleges",      label: "Academic Colleges & Schools",     color: "#3A7BD5" },
+  { id: "admin",         label: "Administrative & VP Offices",     color: "#E8A838" },
+  { id: "research",      label: "Research & Innovation",           color: "#2ECC71" },
+  { id: "student",       label: "Student Services & Affairs",      color: "#9B59B6" },
+  { id: "athletics",     label: "Athletics & Campus Life",         color: "#E74C3C" },
+];
+
+const NODES = [
+  // ── GOVERNANCE ────────────────────────────────────────────────────────────
+  { name: "Office of the President",          cat: "governance", value: 95,
+    desc: "Chief executive of the university; sets strategic direction and represents UA to the Arizona Board of Regents." },
+  { name: "Office of the Provost & SVP Academic Affairs",  cat: "governance", value: 90,
+    desc: "Chief academic officer; oversees all 22 colleges, curriculum, faculty affairs, and academic strategy." },
+  { name: "SVP, COO & CFO",                   cat: "governance", value: 80,
+    desc: "Oversees budget, financial operations, facilities, IT, and university-wide administrative functions." },
+  { name: "Office of General Counsel",         cat: "governance", value: 55,
+    desc: "Legal representation and risk management for the university." },
+  { name: "Arizona Board of Regents (ABOR)",   cat: "governance", value: 70,
+    desc: "State governing body that oversees Arizona's three public universities, including UA." },
+  { name: "Faculty Senate",                    cat: "governance", value: 58,
+    desc: "Shared governance body representing faculty interests in university policy and curriculum." },
+
+  // ── ACADEMIC COLLEGES ─────────────────────────────────────────────────────
+  { name: "College of Science",                cat: "colleges", value: 100,
+    desc: "Largest college; includes Astronomy, Chemistry, Math, Physics, Ecology, Geosciences, and more. ~5,000 students." },
+  { name: "College of Engineering",            cat: "colleges", value: 95,
+    desc: "Biomedical, Chemical, Civil, Electrical, Systems & Industrial, Mining, and Aerospace engineering programs." },
+  { name: "College of Medicine – Tucson",      cat: "colleges", value: 90,
+    desc: "MD-granting medical school; major research hospital partnerships and biomedical research enterprise." },
+  { name: "Eller College of Management",       cat: "colleges", value: 88,
+    desc: "Business school with BBA, MBA, PhD programs; ranked nationally for undergraduate and specialty MBAs." },
+  { name: "College of Agriculture, Life & Environmental Sciences", cat: "colleges", value: 82,
+    desc: "Five schools, five departments; animal sciences, plant sciences, environmental resources, nutrition, and more." },
+  { name: "College of Social & Behavioral Sciences", cat: "colleges", value: 80,
+    desc: "Anthropology, Communication, Economics, Geography, Political Science, Psychology, Sociology, and more." },
+  { name: "Graduate College",                  cat: "colleges", value: 75,
+    desc: "Oversees ~300 graduate degree programs across all disciplines; ~10,000 graduate students." },
+  { name: "College of Education",              cat: "colleges", value: 68,
+    desc: "Teacher preparation, educational leadership, special education, and education research." },
+  { name: "College of Fine Arts",              cat: "colleges", value: 62,
+    desc: "Art, Dance, Music, Theatre Arts, and the UA School of Art. Strong performance and studio programs." },
+  { name: "Mel & Enid Zuckerman College of Public Health", cat: "colleges", value: 60,
+    desc: "MPH, DrPH, and PhD programs across epidemiology, health promotion, environmental health, and biostatistics." },
+  { name: "College of Nursing",                cat: "colleges", value: 58,
+    desc: "BSN, MSN, DNP, and PhD programs; clinical placements across regional health systems." },
+  { name: "James E. Rogers College of Law",    cat: "colleges", value: 62,
+    desc: "JD, LLM programs; nationally ranked; specialties in Indigenous peoples law, international law, and business law." },
+  { name: "R. Ken Coit College of Pharmacy",   cat: "colleges", value: 58,
+    desc: "Pharm.D., MS, and PhD programs; clinical pharmacy and pharmaceutical sciences research." },
+  { name: "College of Health Sciences",        cat: "colleges", value: 55,
+    desc: "Nutrition, communication sciences & disorders, rehabilitation science, and allied health programs." },
+  { name: "College of Architecture, Planning & Landscape Architecture", cat: "colleges", value: 52,
+    desc: "Architecture, landscape architecture, urban planning programs with studio-based design education." },
+  { name: "College of Information Science",    cat: "colleges", value: 50,
+    desc: "Data science, library & information science, human-computer interaction, and cybersecurity." },
+  { name: "College of Veterinary Medicine",    cat: "colleges", value: 56,
+    desc: "DVM and graduate programs; clinical veterinary hospital; One Health research focus." },
+  { name: "College of Medicine – Phoenix",     cat: "colleges", value: 65,
+    desc: "Regional MD program in greater Phoenix; partnership with Banner Health and Phoenix Children's Hospital." },
+  { name: "James C. Wyant College of Optical Sciences", cat: "colleges", value: 48,
+    desc: "World-leading optics research and graduate programs in optical engineering and photonics." },
+  { name: "College of Applied Science & Technology", cat: "colleges", value: 44,
+    desc: "Applied undergraduate and professional programs with campuses across Arizona." },
+  { name: "W.A. Franke Honors College",        cat: "colleges", value: 42,
+    desc: "Interdisciplinary honors curriculum; ~4,000 students; thesis and capstone program." },
+
+  // ── ADMINISTRATIVE & VP OFFICES ───────────────────────────────────────────
+  { name: "VP for Research & Partnerships",    cat: "admin", value: 72,
+    desc: "Oversees $800M+ annual research enterprise, Tech Launch Arizona, and industry collaborations." },
+  { name: "VP for Student Affairs",            cat: "admin", value: 68,
+    desc: "Coordinates student experience, wellbeing, community, and co-curricular programming." },
+  { name: "VP for Enrollment Management",      cat: "admin", value: 65,
+    desc: "Undergraduate admissions, financial aid policy, retention, and institutional research." },
+  { name: "VP for Communications & Govt Relations", cat: "admin", value: 58,
+    desc: "University messaging, media relations, government affairs, and community engagement." },
+  { name: "VP for Marketing",                  cat: "admin", value: 50,
+    desc: "Brand strategy, digital marketing, and enrollment marketing campaigns." },
+  { name: "VP for Human Resources",            cat: "admin", value: 55,
+    desc: "Faculty and staff recruitment, benefits, workforce development, and labor relations." },
+  { name: "VP for Facilities",                 cat: "admin", value: 58,
+    desc: "Construction, maintenance, utilities, sustainability, and space management for ~280 buildings." },
+  { name: "VP for Information Technology",     cat: "admin", value: 60,
+    desc: "Enterprise systems, cybersecurity, research computing, and digital infrastructure." },
+  { name: "VP for Development & Alumni Relations", cat: "admin", value: 62,
+    desc: "Fundraising, donor relations, and engagement with 260,000+ UA alumni worldwide." },
+  { name: "VP for Diversity, Equity & Inclusion", cat: "admin", value: 52,
+    desc: "Inclusive excellence strategy, DEI programs, bias response, and campus climate initiatives." },
+  { name: "SVP for Native American Advancement", cat: "admin", value: 50,
+    desc: "Tribal engagement, Native student success, Indigenous research and cultural programming." },
+  { name: "VP for Global Initiatives",         cat: "admin", value: 48,
+    desc: "International partnerships, study abroad, and global research collaborations." },
+  { name: "Office of Equity & Title IX",       cat: "admin", value: 44,
+    desc: "Compliance with federal civil rights laws; Title IX, Title VI, ADA, and Affirmative Action." },
+
+  // ── RESEARCH & INNOVATION ─────────────────────────────────────────────────
+  { name: "BIO5 Institute",                    cat: "research", value: 70,
+    desc: "Interdisciplinary bioscience research hub integrating life sciences, engineering, medicine, and agriculture." },
+  { name: "Tech Launch Arizona",               cat: "research", value: 65,
+    desc: "Technology transfer office; commercializes UA inventions and manages startup formation." },
+  { name: "Arizona Institute for Resilience",  cat: "research", value: 55,
+    desc: "Cross-disciplinary research on environmental resilience, climate adaptation, and sustainability." },
+  { name: "Steward Observatory & LPL",         cat: "research", value: 68,
+    desc: "World-class astronomy research; manages major observatories including Kitt Peak instruments. Lunar & Planetary Lab is a flagship space science center." },
+  { name: "Center for Applied Genetics & Genomic Medicine", cat: "research", value: 52,
+    desc: "Genomics research translating genetic findings into clinical applications." },
+  { name: "Institute on Place & Wellbeing",    cat: "research", value: 40,
+    desc: "Research on how built environments and place shape health, identity, and community." },
+  { name: "Water Resources Research Center",   cat: "research", value: 45,
+    desc: "Research on arid-land water policy, conservation, and hydrology for the Southwest." },
+  { name: "UArizona Data Science Institute",   cat: "research", value: 55,
+    desc: "University-wide data science research, training, and collaboration hub." },
+  { name: "Arizona Cancer Center",             cat: "research", value: 62,
+    desc: "NCI-designated cancer center; research, prevention, and treatment for over 40 years." },
+
+  // ── STUDENT SERVICES & AFFAIRS ────────────────────────────────────────────
+  { name: "Campus Health",                     cat: "student", value: 58,
+    desc: "Primary health care, immunizations, pharmacy, and wellness services for students." },
+  { name: "Counseling & Psych Services (CAPS)", cat: "student", value: 55,
+    desc: "Mental health counseling, crisis intervention, and psychological services for students." },
+  { name: "Dean of Students",                  cat: "student", value: 52,
+    desc: "Student advocacy, conduct, emergency support, and the SOS (Support.Outreach.Success) program." },
+  { name: "Disability Resource Center",        cat: "student", value: 48,
+    desc: "Academic accommodations and accessibility services for students with disabilities." },
+  { name: "Housing & Residential Life",        cat: "student", value: 60,
+    desc: "Manages on-campus housing for ~8,000 students across 30+ residence halls and apartments." },
+  { name: "Financial Aid & Scholarships",      cat: "student", value: 62,
+    desc: "Administers over $500M in federal, state, and institutional aid annually." },
+  { name: "Office of the Registrar",           cat: "student", value: 50,
+    desc: "Academic records, course registration, transcripts, graduation certification, and degree audits." },
+  { name: "Career Services",                   cat: "student", value: 48,
+    desc: "Internship and career counseling, employer connections, and professional development." },
+  { name: "International Students Programs",   cat: "student", value: 50,
+    desc: "Visa advising, cultural transition support, and programming for ~4,000 international students." },
+  { name: "Student Union & Activities",        cat: "student", value: 55,
+    desc: "Student government, 600+ student clubs, and the Student Union Memorial Center hub." },
+  { name: "Campus Recreation",                 cat: "student", value: 45,
+    desc: "Fitness centers, intramural sports, outdoor adventure programs, and aquatics." },
+  { name: "UA Police Department (UAPD)",       cat: "student", value: 44,
+    desc: "Campus law enforcement, emergency management, and safety education." },
+
+  // ── ATHLETICS & CAMPUS LIFE ───────────────────────────────────────────────
+  { name: "Arizona Wildcats Athletics (NCAA)",  cat: "athletics", value: 80,
+    desc: "Intercollegiate athletics program; 20+ varsity sports; Big 12 Conference member. Averaged 50,000+ fans/game for football." },
+  { name: "University Libraries",              cat: "athletics", value: 65,
+    desc: "Main Library, Science-Engineering, Fine Arts library; 7M+ items; Special Collections & Archives." },
+  { name: "KUAT Communications (PBS/NPR)",     cat: "athletics", value: 44,
+    desc: "Public broadcasting station; Southern Arizona PBS affiliate and NPR member station." },
+  { name: "University of Arizona Press",       cat: "athletics", value: 40,
+    desc: "Academic publisher; over 1,500 titles; notable for Indigenous studies and Borderlands scholarship." },
+  { name: "UA Museum of Art & Center for Creative Photography", cat: "athletics", value: 48,
+    desc: "On-campus museums; CCP holds one of the world's premier photography archives." },
+  { name: "Arizona Student Unions",            cat: "athletics", value: 50,
+    desc: "Campus gathering spaces including Student Union Memorial Center and Bear Down facilities." },
+];
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+const catMap = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+let activeCategories = new Set(CATEGORIES.map(c => c.id));
+
+const W = Math.min(window.innerWidth, 1400);
+const H = Math.max(700, window.innerHeight - 220);
+
+// Build filter buttons
+const filterBar = document.getElementById("filters");
+CATEGORIES.forEach(cat => {
+  const btn = document.createElement("button");
+  btn.className = "filter-btn active";
+  btn.textContent = cat.label;
+  btn.style.background = cat.color + "22";
+  btn.style.color = cat.color;
+  btn.style.borderColor = cat.color;
+  btn.dataset.cat = cat.id;
+  btn.addEventListener("click", () => {
+    if (activeCategories.has(cat.id)) {
+      activeCategories.delete(cat.id);
+      btn.classList.remove("active");
+    } else {
+      activeCategories.add(cat.id);
+      btn.classList.add("active");
+    }
+    updateVisibility();
+  });
+  filterBar.appendChild(btn);
+});
+
+// Build legend
+const legendEl = document.getElementById("legend");
+CATEGORIES.forEach(cat => {
+  const item = document.createElement("div");
+  item.className = "legend-item";
+  item.innerHTML = `<div class="legend-dot" style="background:${cat.color}"></div><span>${cat.label}</span>`;
+  legendEl.appendChild(item);
+});
+
+// ─── D3 SETUP ────────────────────────────────────────────────────────────────
+const svg = d3.select("#chart-area")
+  .append("svg")
+  .attr("viewBox", `0 0 ${W} ${H}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
+
+// Background subtle grid
+svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#07111f");
+
+// Scale: map value (40–100) to radius
+const rScale = d3.scaleSqrt()
+  .domain([d3.min(NODES, d => d.value), d3.max(NODES, d => d.value)])
+  .range([26, 78]);
+
+// Prepare simulation nodes
+const nodes = NODES.map(d => ({
+  ...d,
+  r: rScale(d.value),
+  color: catMap[d.cat].color,
+}));
+
+// Force simulation
+const simulation = d3.forceSimulation(nodes)
+  .force("charge", d3.forceManyBody().strength(5))
+  .force("center", d3.forceCenter(W / 2, H / 2))
+  .force("collision", d3.forceCollide(d => d.r + 3).strength(0.9))
+  .force("x", d3.forceX(W / 2).strength(0.04))
+  .force("y", d3.forceY(H / 2).strength(0.05))
+  .alphaDecay(0.015)
+  .on("tick", ticked);
+
+// Group per node
+const nodeG = svg.selectAll(".node")
+  .data(nodes)
+  .join("g")
+  .attr("class", "node")
+  .style("cursor", "pointer");
+
+// Circles
+nodeG.append("circle")
+  .attr("r", d => d.r)
+  .attr("fill", d => d.color + "cc")
+  .attr("stroke", d => d.color)
+  .attr("stroke-width", 1.5)
+  .on("mouseover", handleMouseOver)
+  .on("mousemove", handleMouseMove)
+  .on("mouseout", handleMouseOut);
+
+// Shimmer rings for governance
+nodeG.filter(d => d.cat === "governance")
+  .append("circle")
+  .attr("r", d => d.r + 5)
+  .attr("fill", "none")
+  .attr("stroke", d => d.color)
+  .attr("stroke-width", 1)
+  .attr("stroke-dasharray", "4 4")
+  .attr("opacity", 0.5);
+
+// Labels (adaptive text size and wrapping)
+nodeG.each(function(d) {
+  const g = d3.select(this);
+  const words = d.name.split(" ");
+  const fontSize = Math.max(7, Math.min(11, d.r / 4));
+  const maxCharsPerLine = Math.floor(d.r * 1.5 / fontSize);
+
+  // Build lines greedily
+  const lines = [];
+  let current = "";
+  words.forEach(w => {
+    if ((current + " " + w).trim().length <= maxCharsPerLine) {
+      current = (current + " " + w).trim();
+    } else {
+      if (current) lines.push(current);
+      current = w;
+    }
+  });
+  if (current) lines.push(current);
+
+  // Only show if radius is big enough
+  if (d.r < 28 && lines.length > 2) return;
+
+  const lineH = fontSize * 1.25;
+  const totalH = lines.length * lineH;
+
+  lines.forEach((line, i) => {
+    g.append("text")
+      .attr("class", "bubble-label")
+      .attr("font-size", fontSize)
+      .attr("y", -totalH / 2 + lineH * i + lineH * 0.5)
+      .text(line);
+  });
+});
+
+function ticked() {
+  nodeG.attr("transform", d => {
+    d.x = Math.max(d.r + 2, Math.min(W - d.r - 2, d.x));
+    d.y = Math.max(d.r + 2, Math.min(H - d.r - 2, d.y));
+    return `translate(${d.x},${d.y})`;
+  });
+}
+
+// ─── TOOLTIP ─────────────────────────────────────────────────────────────────
+const tooltip = document.getElementById("tooltip");
+
+function handleMouseOver(event, d) {
+  tooltip.innerHTML = `
+    <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:${d.color};margin-bottom:4px;">${catMap[d.cat].label}</div>
+    <div style="font-size:0.92rem;font-weight:bold;color:#fff;margin-bottom:6px;">${d.name}</div>
+    <div style="font-size:0.75rem;color:#b0c4de;line-height:1.45;">${d.desc}</div>
+  `;
+  tooltip.style.opacity = 1;
+  d3.select(this).attr("fill", d.color + "ff").attr("stroke-width", 3);
+}
+
+function handleMouseMove(event) {
+  const pad = 14;
+  let x = event.clientX + pad;
+  let y = event.clientY + pad;
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  if (x + tw > window.innerWidth) x = event.clientX - tw - pad;
+  if (y + th > window.innerHeight) y = event.clientY - th - pad;
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+}
+
+function handleMouseOut(event, d) {
+  tooltip.style.opacity = 0;
+  d3.select(this).attr("fill", d.color + "cc").attr("stroke-width", 1.5);
+}
+
+// ─── FILTER VISIBILITY ───────────────────────────────────────────────────────
+function updateVisibility() {
+  nodeG.transition().duration(300)
+    .style("opacity", d => activeCategories.has(d.cat) ? 1 : 0.07)
+    .style("pointer-events", d => activeCategories.has(d.cat) ? "all" : "none");
+}
+
+// Re-run simulation on window resize
+window.addEventListener("resize", () => {
+  const nw = Math.min(window.innerWidth, 1400);
+  const nh = Math.max(700, window.innerHeight - 220);
+  svg.attr("viewBox", `0 0 ${nw} ${nh}`);
+  simulation.force("center", d3.forceCenter(nw / 2, nh / 2)).alpha(0.3).restart();
+});
+</script>
+</body>
+</html>
