@@ -19,6 +19,7 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 
 * [AI Automation and Agents](https://github.com/UA-AI2S/AI-Automation-and-Agents/wiki)
 * [U of A AI Champions Program](https://github.com/UA-AI2S/AI-Champions/wiki)
+* [U of A AI Leadership Training](https://github.com/UA-AI2S/AI-Leadership/wiki)
 * [GenAI Best Practices Prompt Library](https://github.com/UA-AI2S/GenAI-BestPractices/wiki)
 
 ***
