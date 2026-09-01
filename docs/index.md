@@ -17,7 +17,7 @@ AI Info Sessions - is designed to help the University of Arizona and the local c
 
 Here you will find a collection of learning resources on AI, used on diferent workshops.
 
-* [AI Automation and Agents](https://github.com/UA-AI2S/AI-Automation-and-Agents/wiki)
+* [AI Automation and Agents](https://github.com/UA-AI2S/AI-Automation-and-Agents-v2/wiki)
 * [U of A AI Champions Program](https://github.com/UA-AI2S/AI-Champions/wiki)
 * [U of A AI Leadership Training](https://github.com/UA-AI2S/AI-Leadership/wiki)
 * [GenAI Best Practices Prompt Library](https://github.com/UA-AI2S/GenAI-BestPractices/wiki)
