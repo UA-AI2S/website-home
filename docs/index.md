@@ -17,10 +17,12 @@ AI Info Sessions - is designed to help the University of Arizona and the local c
 
 Here you will find a collection of learning resources on AI, used on diferent workshops.
 
+* [AI Fundamentals: Using AI with Judgement](https://github.com/UA-AI2S/AI-Fundamentals-v2/wiki)
 * [AI Automation and Agents](https://github.com/UA-AI2S/AI-Automation-and-Agents-v2/wiki)
 * [U of A AI Champions Program](https://github.com/UA-AI2S/AI-Champions/wiki)
 * [U of A AI Leadership Training](https://github.com/UA-AI2S/AI-Leadership/wiki)
 * [GenAI Best Practices Prompt Library](https://github.com/UA-AI2S/GenAI-BestPractices/wiki)
+* UA ITSUMMIT 2026: [Responsible AI Use](https://tinyurl.com/UA-ITSUMMIT2026)
 
 ***
 
@@ -37,6 +39,9 @@ Here you will find a collection of learning resources on AI, used on diferent wo
 
 ***
 
+Updated: 11/20/2026 (C. Lizarraga)
+
+***
 
 <p><img src="assets/CC-BY-NC-SA.png" width=100> Creative Commons 2026.<br>
 
