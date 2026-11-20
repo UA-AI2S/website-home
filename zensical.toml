@@ -3,7 +3,7 @@
 site_name = "AI2S Learning Resources"
 site_description = "Home for the University of Arizona AI2S teaching and workshop materials"
 site_author = "AI2S Staff"
-site_url = "ua-ai2s.github.io"
+site_url = "https://ua-ai2s.github.io"
 copyright = "Copyright &copy; 2019-2025 AI2S"
 
 # Directories
